@@ -23,3 +23,7 @@ You can download the Expo app from the [Expo Tools page](https://expo.io/tools).
 ### Use detox-expo-helpers in your app
 
 All you really need to use is `reloadApp`, like so: https://github.com/expo/with-detox-tests/blob/master/e2e/firstTest.spec.js#L1-L6
+
+## Example app
+
+Try out an example app with this already configured at https://github.com/expo/with-detox-tests
