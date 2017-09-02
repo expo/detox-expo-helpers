@@ -1,0 +1,10 @@
+{
+  "name": "detox-expo-helpers",
+  "version": "0.1.1",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+    "xdl": "^44.0.2"
+  }
+}
