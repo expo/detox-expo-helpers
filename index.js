@@ -10,7 +10,7 @@ const getAppUrl = async () => {
 };
 
 const getAppHttpUrl = async () => {
-  let httpUrl = await UrlUtils.constructUrlAsync(
+  const httpUrl = await UrlUtils.constructUrlAsync(
     process.cwd(),
     { urlType: 'http' },
     true
@@ -19,9 +19,9 @@ const getAppHttpUrl = async () => {
 };
 
 const reloadApp = async (params) => {
-  let url = await getAppUrl();
+  const url = await getAppUrl();
   await device.launchApp({
-    ...params,
+    permissions: params.permissions,
     newInstance: true,
     url,
     sourceApp: 'host.exp.exponent',
