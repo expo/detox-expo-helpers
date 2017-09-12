@@ -21,7 +21,7 @@ const getAppHttpUrl = async () => {
 const reloadApp = async (params) => {
   const url = await getAppUrl();
   await device.launchApp({
-    permissions: params.permissions,
+    permissions: params && params.permissions,
     newInstance: true,
     url,
     sourceApp: 'host.exp.exponent',
