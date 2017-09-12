@@ -18,9 +18,11 @@ const getAppHttpUrl = async () => {
   return httpUrl;
 };
 
-const reloadApp = async () => {
+const reloadApp = async (params) => {
   let url = await getAppUrl();
-  await device.relaunchApp({
+  await device.launchApp({
+    ...params,
+    newInstance: true,
     url,
     sourceApp: 'host.exp.exponent',
     launchArgs: { EXKernelDisableNuxDefaultsKey: true },
