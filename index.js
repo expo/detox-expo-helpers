@@ -1,6 +1,29 @@
 const { UrlUtils } = require('xdl');
 
 let url;
+
+function getUrlQueryFromDictionary(dictionary) {
+    let array = [];
+    for (let property in dictionary) {
+        let encodedKey = encodeURIComponent(property);
+        let encodedValue = encodeURIComponent(dictionary[property]);
+        array.push(encodedKey + "=" + encodedValue);
+    }
+    array = array.join("&");
+    return array;
+}
+
+
+function addUrlParams(url, params) {
+    if (params && params.urlQueryString) {
+        const urlParams = params.urlQueryString;
+        if (urlParams != null) {
+            url = url + "?" + getUrlQueryFromDictionary(urlParams);
+        }
+    }
+    return url;
+}
+
 const getAppUrl = async () => {
   if (!url) {
     url = await UrlUtils.constructManifestUrlAsync(process.cwd());
@@ -19,7 +42,8 @@ const getAppHttpUrl = async () => {
 };
 
 const reloadApp = async (params) => {
-  const url = await getAppUrl();
+  let url = await getAppUrl();
+  url = addUrlParams(url, params);
   await device.launchApp({
     permissions: params && params.permissions,
     newInstance: true,
