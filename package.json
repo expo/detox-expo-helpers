@@ -5,6 +5,6 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
-    "xdl": "^44.0.2"
+    "xdl": "^49.2.0"
   }
 }
