@@ -40,9 +40,7 @@ const reloadApp = async (params) => {
 };
 
 const getDetoxVersion = () => {
-  const detoxAppPath = path.join(process.cwd(), 'node_modules/detox');
-  const detoxPackageJsonPath = path.join(detoxAppPath, 'package.json');
-
+  const detoxPackageJsonPath = path.join(process.cwd(), 'node_modules/detox/package.json');
   if (!fs.existsSync(detoxPackageJsonPath)) {
     throw new Error(`detox is not installed in this directory: ${detoxPackageJsonPath}`);
   }
