@@ -6,7 +6,6 @@
   "devDependencies": {},
   "dependencies": {
     "xdl": "^44.0.2",
-    "expo-detox-hook": "^1",
     "semver": "^5.6.0"
   }
 }

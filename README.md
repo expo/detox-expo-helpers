@@ -12,7 +12,7 @@ yarn add detox-expo-helpers -D
 npm i detox-expo-helpers --save-dev
 ```
 
-Also, install `expo-detox-cli` globally by running `npm install -g expo-detox-cli`
+Also, install `expo-detox-cli` globally by running `npm install -g expo-detox-cli` and declare `expo-detox-hooks` in your project's `package.json`.
 
 ### Set up detox on your project
 
