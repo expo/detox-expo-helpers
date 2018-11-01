@@ -1,5 +1,6 @@
 const { UrlUtils } = require('xdl');
 const fs = require('fs');
+const path = require('path');
 const semver = require('semver');
 
 let url;
@@ -22,7 +23,7 @@ const getAppHttpUrl = async () => {
 
 const reloadApp = async (params) => {
   const url = await getAppUrl();
-  const formattedBlacklistArg = await blacklistCmdlineFormat(params.urlBlacklist);
+  const formattedBlacklistArg = await blacklistCmdlineFormat(params && params.urlBlacklist);
   await device.launchApp({
     permissions: params && params.permissions,
     newInstance: true,
@@ -32,8 +33,9 @@ const reloadApp = async (params) => {
   });
 
   const detoxVersion = getDetoxVersion();
-  if (semver.lt(getDetoxVersion(), '9.0.6')){
-    await blacklistLiveReloadUrl(params.urlBlacklist);
+  if (semver.lt(detoxVersion, '9.0.6')){ 
+    // we will need to pass in blacklist again before it was supported at init in 9.0.6
+    await blacklistLiveReloadUrl(params && params.urlBlacklist);
   }
 };
 
