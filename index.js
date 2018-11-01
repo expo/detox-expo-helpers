@@ -1,4 +1,7 @@
 const { UrlUtils } = require('xdl');
+const fs = require('fs');
+const path = require('path');
+const semver = require('semver');
 
 let url;
 const getAppUrl = async () => {
@@ -20,28 +23,55 @@ const getAppHttpUrl = async () => {
 
 const reloadApp = async (params) => {
   const url = await getAppUrl();
+  const formattedBlacklistArg = await blacklistCmdlineFormat(params && params.urlBlacklist);
   await device.launchApp({
     permissions: params && params.permissions,
     newInstance: true,
     url,
     sourceApp: 'host.exp.exponent',
-    launchArgs: { EXKernelDisableNuxDefaultsKey: true },
+    launchArgs: { EXKernelDisableNuxDefaultsKey: true, detoxURLBlacklistRegex: formattedBlacklistArg },
   });
-  await blacklistLiveReloadUrl();
+
+  const detoxVersion = getDetoxVersion();
+  if (semver.lt(detoxVersion, '9.0.6')){ 
+    // we will need to pass in blacklist again before it was supported at init in 9.0.6
+    await blacklistLiveReloadUrl(params && params.urlBlacklist);
+  }
+};
+
+const getDetoxVersion = () => {
+  const detoxPackageJsonPath = path.join(process.cwd(), 'node_modules/detox/package.json');
+  if (!fs.existsSync(detoxPackageJsonPath)) {
+    throw new Error(`detox is not installed in this directory: ${detoxPackageJsonPath}`);
+  }
+
+  return require(detoxPackageJsonPath).version;
 };
 
 function escapeRegExp(str) {
   return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 }
 
-const blacklistLiveReloadUrl = async () => {
+const getBlacklist = async () => {
   const httpUrl = await getAppHttpUrl();
   const liveReloadUrl = `${httpUrl}/onchange`;
   const fabricUrl = 'https://e.crashlytics.com/spi/v2/events';
-  await device.setURLBlacklist([
-    escapeRegExp(liveReloadUrl),
-    escapeRegExp(fabricUrl),
-  ]);
+  return [liveReloadUrl, fabricUrl];
+};
+
+// returns blacklist arg in format like \\("http://192.168.1.253:19001/onchange","https://e.crashlytics.com/spi/v2/events"\\)
+const blacklistCmdlineFormat = async (userBlacklist) => {
+  const expoBlacklist = await getBlacklist();
+  const blacklist = userBlacklist ? expoBlacklist.concat(userBlacklist) : expoBlacklist;
+  const cmdlineFormatBlacklist = blacklist.map(url => `"${url}"`).join(",");
+  return `\\(${cmdlineFormatBlacklist}\\)`; 
+};
+
+const blacklistLiveReloadUrl = async (userBlacklist) => {
+  const expoBlacklist = await getBlacklist();
+  const blacklist = userBlacklist ? expoBlacklist.concat(userBlacklist) : expoBlacklist;
+  const regexBlacklist = blacklist.map(url => escapeRegExp(url));
+  await device.setURLBlacklist(regexBlacklist);
 };
 
 module.exports = {
