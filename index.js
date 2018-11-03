@@ -1,7 +1,21 @@
 const { UrlUtils } = require('xdl');
+const cp = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const semver = require('semver');
+
+const OSX_APP_PATH = path.join(os.homedir(), 'Library');
+const OSX_LIBRARY_ROOT_PATH = path.join(OSX_APP_PATH, 'ExpoDetoxHook');
+
+const expoDetoxHookAppPath = path.join(process.cwd(), 'node_modules/expo-detox-hook');
+const expoDetoxHookPackageJsonPath = path.join(expoDetoxHookAppPath, 'package.json');
+
+function getFrameworkPath() {
+  const version = require(expoDetoxHookPackageJsonPath).version;
+  let sha1 = cp.execSync(`(echo "${version}" && xcodebuild -version) | shasum | awk '{print $1}'`).toString().trim();
+  return `${OSX_LIBRARY_ROOT_PATH}/ios/${sha1}/ExpoDetoxHook.framework/ExpoDetoxHook`;
+}
 
 let url;
 const getAppUrl = async () => {
@@ -22,8 +36,20 @@ const getAppHttpUrl = async () => {
 };
 
 const reloadApp = async (params) => {
-  const url = await getAppUrl();
+  if (!fs.existsSync(expoDetoxHookPackageJsonPath)) {
+    throw new Error("expo-detox-hook is not installed in this directory. You should declare it in package.json and run `npm install`");
+  }
+
+  const expoDetoxHookFrameworkPath = getFrameworkPath();
+
+  if (!fs.existsSync(expoDetoxHookFrameworkPath)){
+    throw new Error ("expo-detox-hook is not installed in your osx Library. Run `npm install -g expo-detox-cli && expotox clean-framework-cache && expotox build-framework-cache` to fix this.");
+  }
+
+  const oldEnvVar = process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES;
+  process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES = expoDetoxHookFrameworkPath;
   const formattedBlacklistArg = await blacklistCmdlineFormat(params && params.urlBlacklist);
+  const url = await getAppUrl();
   await device.launchApp({
     permissions: params && params.permissions,
     newInstance: true,
@@ -31,6 +57,16 @@ const reloadApp = async (params) => {
     sourceApp: 'host.exp.exponent',
     launchArgs: { EXKernelDisableNuxDefaultsKey: true, detoxURLBlacklistRegex: formattedBlacklistArg },
   });
+
+  if (oldEnvVar){
+    // revert the env var to the old value
+    process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES = oldVar;
+  } else {
+    // old env var was never defined, so we delete it
+    delete process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES ;
+  }
+  
+
 
   const detoxVersion = getDetoxVersion();
   if (semver.lt(detoxVersion, '9.0.6')){ 
