@@ -12,7 +12,7 @@ yarn add detox-expo-helpers -D
 npm i detox-expo-helpers --save-dev
 ```
 
-Also, install `expo-detox-cli` globally by running `npm install -g expo-detox-cli` and declare `expo-detox-hooks` in your project's `package.json`.
+Also, declare `expo-detox-hooks` in your project's `package.json`.
 
 ### Set up detox on your project
 
@@ -25,8 +25,6 @@ You can download the Expo app from the [Expo Tools page](https://expo.io/tools).
 ### Use detox-expo-helpers in your app
 
 All you really need to use is `reloadApp`, like so: https://github.com/expo/with-detox-tests/blob/master/e2e/firstTest.spec.js#L1-L6
-
-Run your test with `expotox test` (it's basically `detox test` with an additional env var).
 
 ## Example app
 
