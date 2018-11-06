@@ -35,6 +35,16 @@ const getAppHttpUrl = async () => {
   return httpUrl;
 };
 
+const resetEnvDyldVar(oldEnvVar) = () => {
+  if (oldEnvVar){
+    // revert the env var to the old value
+    process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES = oldVar;
+  } else {
+    // old env var was never defined, so we delete it
+    delete process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES;
+  }
+}
+
 const reloadApp = async (params) => {
   if (!fs.existsSync(expoDetoxHookPackageJsonPath)) {
     throw new Error("expo-detox-hook is not installed in this directory. You should declare it in package.json and run `npm install`");
@@ -46,8 +56,13 @@ const reloadApp = async (params) => {
     throw new Error ("expo-detox-hook is not installed in your osx Library. Run `npm install -g expo-detox-cli && expotox clean-framework-cache && expotox build-framework-cache` to fix this.");
   }
 
+  const detoxVersion = getDetoxVersion();
   const oldEnvVar = process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES;
-  process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES = expoDetoxHookFrameworkPath;
+  
+  if (semver.gte(detoxVersion, '9.0.6')) {
+    process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES = expoDetoxHookFrameworkPath;
+  }
+
   const formattedBlacklistArg = await blacklistCmdlineFormat(params && params.urlBlacklist);
   const url = await getAppUrl();
   await device.launchApp({
@@ -58,20 +73,12 @@ const reloadApp = async (params) => {
     launchArgs: { EXKernelDisableNuxDefaultsKey: true, detoxURLBlacklistRegex: formattedBlacklistArg },
   });
 
-  if (oldEnvVar){
-    // revert the env var to the old value
-    process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES = oldVar;
-  } else {
-    // old env var was never defined, so we delete it
-    delete process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES ;
-  }
   
-
-
-  const detoxVersion = getDetoxVersion();
   if (semver.lt(detoxVersion, '9.0.6')){ 
     // we will need to pass in blacklist again before it was supported at init in 9.0.6
     await blacklistLiveReloadUrl(params && params.urlBlacklist);
+  } else {
+    resetEnvDyldVar(oldEnvVar);
   }
 };
 
