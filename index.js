@@ -35,7 +35,7 @@ const getAppHttpUrl = async () => {
   return httpUrl;
 };
 
-const resetEnvDyldVar(oldEnvVar) = () => {
+function resetEnvDyldVar(oldEnvVar) {
   if (oldEnvVar){
     // revert the env var to the old value
     process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES = oldVar;
@@ -58,7 +58,7 @@ const reloadApp = async (params) => {
 
   const detoxVersion = getDetoxVersion();
   const oldEnvVar = process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES;
-  
+
   if (semver.gte(detoxVersion, '9.0.6')) {
     process.env.SIMCTL_CHILD_DYLD_INSERT_LIBRARIES = expoDetoxHookFrameworkPath;
   }
