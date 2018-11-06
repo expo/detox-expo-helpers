@@ -2,6 +2,9 @@
 
 Utilities for using [detox](http://github.com/wix/detox) in your Expo/Create React Native App apps.
 
+## Dependencies
+`detox-expo-helpers` requires your app to use the Expo SDK 29.0.0 or greater.
+
 ## Use it
 
 ### Install it
@@ -17,6 +20,17 @@ Also, declare `expo-detox-hooks` in your project's `package.json`.
 ### Set up detox on your project
 
 Follow the steps in the detox [Getting Started](https://github.com/wix/detox/blob/master/docs/Introduction.GettingStarted.md) guide.
+
+In your `init.js` file, set the `global.__E2E__` flag to `true` before your tests begin, like so:
+```js
+beforeAll(async () => {
+  global.__E2E__ = true
+  await detox.init(config)
+})
+```
+
+This will tell the Expo client to run in a mode compatible with E2E testing.
+
 
 ### Download the Expo app to some directory in your project and configure in package.json
 
