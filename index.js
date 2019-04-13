@@ -1,3 +1,4 @@
+const { device } = require('detox');
 const { UrlUtils } = require('xdl');
 const cp = require('child_process');
 const fs = require('fs');
