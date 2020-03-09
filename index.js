@@ -64,7 +64,14 @@ const reloadApp = async (params) => {
   }
 
   const formattedBlacklistArg = await blacklistCmdlineFormat(params && params.urlBlacklist);
-  const url = await getAppUrl();
+  
+  let url;
+  if(params && params.url) {
+    url = params.url;
+  } else {
+    url = await getAppUrl();
+  }
+  
   await device.launchApp({
     permissions: params && params.permissions,
     newInstance: true,
