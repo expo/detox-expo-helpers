@@ -1,4 +1,4 @@
-const { UrlUtils } = require('xdl');
+const { UrlUtils } = require('@expo/xdl');
 const cp = require('child_process');
 const fs = require('fs');
 const os = require('os');
