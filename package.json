@@ -1,12 +1,12 @@
 {
   "name": "detox-expo-helpers",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
     "child-process-promise": "^2.2.1",
-    "xdl": "^51.5.0",
-    "semver": "^5.6.0"
+    "semver": "^5.6.0",
+    "xdl": "^59.0.32"
   }
 }
